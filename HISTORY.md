@@ -23,9 +23,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * **Version 1**
     * [1.0.x](#camicroscope-10)
 
-### caMicroscope [Unreleased](https://github.com/camicroscope/camicroscope/compare/v3.8.0...camicroscope:develop)
+### caMicroscope [Unreleased](https://github.com/camicroscope/camicroscope/compare/v3.8.4...camicroscope:develop)
 ###### TBD
-* TBD
+* Auto convert png and jpg files via table load.
+
+### caMicroscope [3.8.4](https://github.com/camicroscope/camicroscope/compare/v3.8.3...camicroscope:v3.8.4)
+###### 2021-01-25
+* Addition of a collection type, and related panel in table
+* Google Drive Upload Support [#467](https://github.com/camicroscope/caMicroscope/pull/467)
+* Upload process enhancement [#463](https://github.com/camicroscope/caMicroscope/pull/463)
+* Table and Info page UI harmonization [#464](https://github.com/camicroscope/caMicroscope/pull/464)
+* Footer Position Imrovements for Info and Table [#475](https://github.com/camicroscope/caMicroscope/pull/475)
+* Add Login button to signup page [#461](https://github.com/camicroscope/caMicroscope/pull/461)
+* Windows Lint Linebreak Fix [#470](https://github.com/camicroscope/caMicroscope/pull/470)
+* Default Annotation Shape set to Polygon [#466](https://github.com/camicroscope/caMicroscope/pull/466)
+* Heatmap Default Color Change to "Rainbow"
+
+### caMicroscope [3.8.3](https://github.com/camicroscope/camicroscope/compare/v3.8.2...camicroscope:v3.8.3)
+###### 2020-12-03
+* Bugfix: Model Failed to read coordinates [#454](https://github.com/camicroscope/caMicroscope/pull/454)[#455](https://github.com/camicroscope/caMicroscope/pull/455)
+* multislide explorer [#456](https://github.com/camicroscope/caMicroscope/pull/456)
+* Model Class List Edit Field Defaults [#457](https://github.com/camicroscope/caMicroscope/pull/457)
+
+### caMicroscope [3.8.2](https://github.com/camicroscope/camicroscope/compare/v3.8.1...camicroscope:v3.8.2)
+###### 2020-11-10
+* Add ctrl+l shortcut for label preset tool
+* Annotation and Segmentation Rendering Optimizations
+* Layer manager bugfixes
+
+### caMicroscope [3.8.1](https://github.com/camicroscope/camicroscope/compare/v3.8.0...camicroscope:v3.8.1)
+###### 2020-10-05
+* Added baked-in default annotation schema
+* Loader Bugfix
 
 ### caMicroscope [3.8.0](https://github.com/camicroscope/camicroscope/compare/v3.7.7...camicroscope:v3.8.0)
 ###### 2020-09-04

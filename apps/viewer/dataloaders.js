@@ -1,18 +1,4 @@
-// dataloaders.js
-//
 
-// function SlideDataLoader(){
-//  function loadingSlideInfo(){
-
-//  }
-//  var checkCoreIsReady = setInterval(function () {
-//      if($CAMIC) {
-//          clearInterval(checkCoreIsReady);
-//          //load data
-//          loadingSlideInfo();
-//      }
-//  }, 1000);
-// }
 
 function FormTempaltesLoader() {
   function loadingFormTemplates() {
@@ -47,83 +33,90 @@ function FormTempaltesLoader() {
     }
   }, 500);
 }
-let _l = false;
-function OverlayersLoader() {
-  function loadingOverlayers() {
-    $CAMIC.store.findMarkTypes($D.params.slideId)
-    //
-        .then(function(layers) {
-          typeIds = {};
-          if (!$D.overlayers) $D.overlayers = [];
-          // convert part not nesscary
-          for (let i = 0; i < layers.length; i++) {
-            $D.overlayers.push(covertToLayViewer(layers[i]));
-          }
-          _l = true;
-        })
-    //
-        .catch(function(error) {
-          // overlayers schema
 
-          console.error(error);
-        })
-    //
-        .finally(function() {
-          if ($D.overlayers) {
+function layersLoader() {
+  // human
+  function loadingHumanOverlayers() {
+    $CAMIC.store.findMarkTypes($D.params.slideId, 'human').then(function(layers) {
+      
+      // convert part not nesscary
+      $D.humanlayers = [...layers.map(covertToHumanLayer)];
+      console.log('loaded Human layers', $D.humanlayers)
 
-          } else {
-            // set message
-            $UI.message.addError('Loading Overlayers is Error');
-          }
-        });
+      // add data and create ui item
+      addHumanLayerItems()
+
+    }).catch(function(error) {
+      // overlayers schema
+      $UI.message.addError('Loading Human Layers is Error');
+      console.error(error);
+    });
   }
+  // ruler
+  function loadingRulerOverlayers() {
+    $CAMIC.store.findMarkTypes($D.params.slideId, 'ruler').then(function(layers) {
+      
+      // convert part not nesscary
+      $D.rulerlayers = [...layers.map(covertToRulerLayer)];
+      console.log('loaded ruler layers', $D.rulerlayers)
 
-  var checkCoreIsReady = setInterval(function() {
-    if ($CAMIC && $D.params.data) {
-      clearInterval(checkCoreIsReady);
-      // load data
-      loadingOverlayers();
-    }
-  }, 500);
-}
-let _h = false; // loading heatmap
-function HeatmaplayersLoader() {
+      // add data and create ui item
+      addRulerLayerItems()
+
+    }).catch(function(error) {
+      // overlayers schema
+      $UI.message.addError('Loading Ruler Layers is Error');
+      console.error(error);
+    });
+  }
+  // heatmap
   function loadingHeatmapOverlayers() {
-    $CAMIC.store.findHeatmapType($D.params.slideId)
-    //
-        .then(function(layers) {
-          if (!$D.overlayers)$D.overlayers = [];
-          // convert and load heatmap layer
-          const TypeId = randomId();
-          for (let i = 0; i < layers.length; i++) {
-            const item = layers[i].provenance.analysis;
-            $D.overlayers.push({id: item.execution_id,
-              name: item.execution_id,
-              typeId: TypeId,
-              typeName: item.computation});
-          }
-          _h = true;
-        })
-        .catch(function(error) {
-          // overlayers schema
-
-          console.error(error);
-        })
-    //
-        .finally(function() {
-          if ($D.overlayers) {
-          } else {
-            // set message
-            $UI.message.addError('Loading heatmap Overlayers is Error');
-          }
+    $CAMIC.store.findHeatmapType($D.params.slideId).then(function(layers) {
+      $D.heatmaplayers = [];
+      // convert and load heatmap layer
+      for (let i = 0; i < layers.length; i++) {
+        const item = layers[i].provenance.analysis;
+        $D.heatmaplayers.push({id: item.execution_id,
+          name: item.execution_id,
+          typeId: "heatmap",
+          typeName: "heatmap"
         });
+      }
+      console.log('loaded heatmap layers', $D.heatmaplayers)
+      // add data and create ui item
+      addHeatmapLayerItems()
+    }).catch(function(error) {
+      // overlayers schema
+      $UI.message.addError('Loading heatmap Overlayers is Error');
+      console.error(error);
+    });
   }
 
+  // segmentation
+  function loadingComputerOverlayers() {
+    $CAMIC.store.findMarkTypes($D.params.slideId, 'computer').then(function(layers) {
+      
+      // convert part not nesscary
+      $D.computerlayers=[...layers.map(covertToCumputerLayer)];
+      console.log('loaded computer layers', $D.computerlayers)
+      // add data and create ui item
+      addComputerLayerItems()      
+    }).catch(function(error) {
+      $UI.message.addError('Loading Computer Layers is Error');
+      console.error(error);
+    });
+  }
   var checkCoreIsReady = setInterval(function() {
-    if ($CAMIC && $D.params.data) {
+    if ($UI.layersViewer && $UI.layersViewerMinor) {
       clearInterval(checkCoreIsReady);
-      // load data
+      loadingHumanOverlayers();
+      loadingRulerOverlayers();
       loadingHeatmapOverlayers();
+      loadingComputerOverlayers();
     }
   }, 500);
 }
+
+
+
+

@@ -349,6 +349,7 @@
       //this._viewer.controls.bottomright.style.display = 'none';
       this.updateView();
       this._viewer.setMouseNavEnabled(false);
+      this._viewer.innerTracker.startTrackingScroll();
       this._div.style.cursor = "pointer";
       this._div.style.display = "block";
 
@@ -693,7 +694,10 @@
             type: "Point",
             coordinates: [...point]
           },
-          bound: [...point]
+          bound: {
+            type: "Point",
+            coordinates: [...point]
+          }
         };
         return;
       }
@@ -710,6 +714,13 @@
               : "Polygon",
           coordinates: [[point]],
           path: null
+        },
+        bound: {
+          type:
+            this.drawMode === "line" || this.drawMode === "grid"
+              ? "LineString"
+              : "Polygon",
+          coordinates: [[point]]
         }
       };
 
@@ -841,7 +852,7 @@
         }
       }
       // create bounds
-      this._current_path_.bound = getBounds(
+      this._current_path_.bound.coordinates[0] = getBounds(
         this._current_path_.geometry.coordinates[0]
       );
 

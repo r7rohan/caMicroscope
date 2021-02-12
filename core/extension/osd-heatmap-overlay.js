@@ -88,8 +88,9 @@
         f => f.name === options.currentFieldName
       );
     }
-    this._color = options.color || '#ffa500'; // heatmap color
-    this._colors = options.colors || ['#EAF2F8', '#D4E6F1', '#A9CCE3', '#7FB3D5', '#5499C7']; // heatmap color
+    this._color = options.color || '#1034a6'; // heatmap color
+    // this._colors = options.colors || ['#EAF2F8', '#D4E6F1', '#A9CCE3', '#7FB3D5', '#5499C7']; // heatmap color
+    this._colors = options.colors || ["#2b83ba", "#abdda4", "#ffffbf", "#fdae61", "#d7191c"]; // heatmap color
     this.intervals = _getIntervals(
       this._currentField,
       this._colors,
@@ -164,7 +165,7 @@
     // btn to open/close legend
     this.__legend_btn = document.createElement("div");
     this.__legend_btn.classList.add("material-icons");
-    this.__legend_btn.classList.add("md-24");
+    this.__legend_btn.classList.add("md-18");
     this.__legend_btn.textContent = "unfold_less";
     this.__legend_btn.style.color = "#000";
     this.__legend_btn.style.float = "right";
@@ -227,8 +228,9 @@
           f => f.name === options.currentFieldName
         );
       }
-      this._color = options.color || this._color || '#ffa500';
-      this._colors = options.colors || this._colors || ['#EAF2F8', '#D4E6F1', '#A9CCE3', '#7FB3D5', '#5499C7'];
+      this._color = options.color || '#1034a6'; // heatmap color
+      // this._colors = options.colors || ['#EAF2F8', '#D4E6F1', '#A9CCE3', '#7FB3D5', '#5499C7']; // heatmap color
+      this._colors = options.colors || ["#2b83ba", "#abdda4", "#ffffbf", "#fdae61", "#d7191c"]; // heatmap color
       this.intervals = _getIntervals(
         this._currentField,
         this._colors,
@@ -334,7 +336,7 @@
       this.updateView(0);
 
       // show legend if mode is
-      createLegend(this.__legend_info, this.intervals);
+      createLegend(this.__legend_info, this._currentField.name, this.intervals);
       if (this.mode == "gradient") {
         this.__legend.style.display = "";
       } else {
@@ -368,13 +370,13 @@
       const field = this._fields.find(f => f.name === name);
       if (field) {
         this._currentField = field;
-        createLegend(this.__legend_info, this.intervals);
+        createLegend(this.__legend_info, this._currentField.name, this.intervals);
         if (draw) this.drawOnCanvas();
       }
     },
 
     updateLegend: function() {
-        createLegend(this.__legend_info, this.intervals);
+        createLegend(this.__legend_info, this._currentField.name, this.intervals);
     },
 
     /**
@@ -389,7 +391,7 @@
       if (field) {
         field.setThresholds(min, max);
 
-        createLegend(this.__legend_info, this.intervals);
+        createLegend(this.__legend_info, this._currentField.name, this.intervals);
         if (draw) this.drawOnCanvas();
       }
     },
@@ -407,7 +409,7 @@
         field.setThresholds(min, max);
         //this.__thresholdingData();
         this.drawOnCanvas();
-        createLegend(this.__legend_info, this.intervals);
+        createLegend(this.__legend_info, this._currentField.name, this.intervals);
       }
     },
 
@@ -450,7 +452,7 @@
         this.__legend.style.display = "none";
       }
       this.drawOnCanvas();
-      createLegend(this.__legend_info, this.intervals);
+      createLegend(this.__legend_info, this._currentField.name, this.intervals);
     },
 
     /**
@@ -463,7 +465,7 @@
       // refresh view/heatmap/ui if the heatmap is in 'gradient' mode
       if (this.mode == "gradient") {
         this.drawOnCanvas();
-        createLegend(this.__legend_info, this.intervals);
+        createLegend(this.__legend_info, this._currentField.name, this.intervals);
       }
     },
 
@@ -488,7 +490,7 @@
       // refresh view/heatmap/ui if the heatmap is in 'gradient' mode
       if (this.mode == "gradient") {
         this.drawOnCanvas();
-        createLegend(this.__legend_info, this.intervals);
+        createLegend(this.__legend_info, this._currentField.name, this.intervals);
       }
     },
 
@@ -696,9 +698,6 @@
         finalData = this.__thresholdingData();
         // set patch color
         this._display_ctx_.fillStyle = this._color;
-        // get the patch's size on the screen
-        //const w = logicalToPhysicalDistanceX(this._size[0],this._viewer.imagingHelper);
-        //const h = logicalToPhysicalDistanceY(this._size[1],this._viewer.imagingHelper);
 
         // start to draw each patch
         this._display_ctx_.beginPath();
@@ -1148,10 +1147,10 @@
       this.value[1] = max;
     }
   };
-  function createLegend(container, intervals, isAscend = false) {
+  function createLegend(container, name, intervals, isAscend = false) {
     container.innerHTML = "";
     
-    container.innerHTML = `<div class="material-icons md-24">${isAscend?'arrow_drop_up':'arrow_drop_down'}</div></br>` + (isAscend?intervals
+    container.innerHTML = `<div style="font-weight:bold;display: flex;"><div class="material-icons md-18">${isAscend?'arrow_drop_up':'arrow_drop_down'}</div><span>${name}</span></div>` + (isAscend?intervals
       .map(
         item =>
           `<i style="background:${
@@ -1170,9 +1169,9 @@
 
       container.querySelector('.material-icons').addEventListener('click',()=>{
         if(container.querySelector('.material-icons').textContent == 'arrow_drop_up'){
-          createLegend(container, intervals, false)
+          createLegend(container, name, intervals, false)
         } else {
-          createLegend(container, intervals, true)
+          createLegend(container, name, intervals, true)
         }
       })
   }

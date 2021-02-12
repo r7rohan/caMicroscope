@@ -1,4 +1,3 @@
-// requires: Api_Utils
 // METHODS HERE RETURN PROMISES
 // for test server
 try {
@@ -277,19 +276,19 @@ class Store {
   //   }).then(this.errorHandler);
   // }
 
-  findMarkTypes(slide, name) {
+
+  findMarkTypes(slide, type) { // type = 'human' or 'computer'
     const suffix = 'Mark/findMarkTypes';
 
     const query = {};
     //
-    if (!slide) {
-      console.error('Store.findMarkTypes needs slide ... ');
+    if (!slide || !type ) {
+      console.error('Store.findMarkTypes needs slide and type ... ');
       return null;
     }
     query['slide'] = slide;
-    if (name) {
-      query['name'] = name;
-    }
+    query['type'] = type;
+
     const url = this.base + suffix;
     return fetch(url + '?' + objToParamStr(query), {
       credentials: 'include',
@@ -547,27 +546,33 @@ class Store {
 
   /**
    * find overlays matching name and/or type
-   * @param {string} [name] - the slide name
-   * @param {string} [location] - the slide location, supporting regex match
+   * @param {string} [name] - the slide's name
+   * @param {string} [specimen] - the slide's noted specimen
+   * @param {string} [study] - the slide's noted study
+   * @param {string} [location] - the slide's file location
+   * @param {string} [q] - override query - ignores all other params if set
    * @return {promise} - promise which resolves with data
    **/
-  findSlide(slide, specimen, study, location) {
+  findSlide(slide, specimen, study, location, q) {
+    let query;
     const suffix = 'Slide/find';
     const url = this.base + suffix;
-    const query = {};
-    if (slide) {
-      query.slide = slide;
+    if (q) {
+      query = q;
+    } else {
+      if (slide) {
+        query.slide = slide;
+      }
+      if (study) {
+        query.study = study;
+      }
+      if (specimen) {
+        query.specimen = specimen;
+      }
+      if (location) {
+        query.location = location;
+      }
     }
-    if (study) {
-      query.study = study;
-    }
-    if (specimen) {
-      query.specimen = specimen;
-    }
-    if (location) {
-      query.location = location;
-    }
-
     return fetch(url + '?' + objToParamStr(query), {
       credentials: 'include',
       mode: 'cors',
@@ -841,6 +846,165 @@ class Store {
     const query = {id: id};
     return fetch(url + '?' + objToParamStr(query), {
       method: 'POST',
+      credentials: 'include',
+      mode: 'cors',
+    }).then(this.errorHandler);
+  }
+
+
+  /**
+   * post collection
+   * @param {object} json - the collection data
+   * @return {promise} - promise which resolves with response
+   **/
+  addCollection(json) {
+    const suffix = 'Collection/post';
+    const url = this.base + suffix;
+    if (this.validation.collection && !this.validation.collection(json)) {
+      console.warn(this.validation.collection.errors);
+    }
+    return fetch(url, {
+      method: 'POST',
+      credentials: 'include',
+      mode: 'cors',
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8',
+        // "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: JSON.stringify(json),
+    }).then(this.errorHandler);
+  }
+
+  /**
+   * get a freeform document by id. Try not to use this in core.
+   * @param {string} id - the mongo doc's id
+   * @return {promise} - promise which resolves with data
+   **/
+  getFreeform(id) {
+    const suffix = 'Freeform/find';
+    const url = this.base + suffix;
+    const query = {
+      '_id': id,
+    };
+    return fetch(url + '?' + objToParamStr(query), {
+      credentials: 'include',
+      mode: 'cors',
+    }).then(this.errorHandler);
+  }
+
+  /**
+   * find a freeform document by arbitrary query. Try not to use this in core.
+   * @param {string} id - the mongo doc's id
+   * @return {promise} - promise which resolves with data
+   **/
+  findFreeform(query) {
+    const suffix = 'Freeform/find';
+    const url = this.base + suffix;
+    return fetch(url + '?' + objToParamStr(query), {
+      credentials: 'include',
+      mode: 'cors',
+    }).then(this.errorHandler);
+  }
+
+  /**
+   * post a freeform document.  Try not to use this in core.
+   * @param {object} json - the collection data
+   * @return {promise} - promise which resolves with response
+   **/
+  addFreeform(json) {
+    const suffix = 'Freeform/post';
+    const url = this.base + suffix;
+    return fetch(url, {
+      method: 'POST',
+      credentials: 'include',
+      mode: 'cors',
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8',
+        // "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: JSON.stringify(json),
+    }).then(this.errorHandler);
+  }
+
+  /**
+   * delete freeform document
+   * @param {object} id - the freeform object id
+   * @return {promise} - promise which resolves with response
+   **/
+  deleteFreeform(id) {
+    const suffix = 'Freeform/delete';
+    const url = this.base + suffix;
+    const query = {
+      '_id': id,
+    };
+    return fetch(url + '?' + objToParamStr(query), {
+      method: 'DELETE',
+      credentials: 'include',
+      mode: 'cors',
+    }).then(this.errorHandler);
+  }
+  /**
+   * get a collection info
+   * @param {object} json - the log data
+   * @return {promise} - promise which resolves with data
+   **/
+  getAllCollection() {
+    const suffix = 'Collection/find';
+    const url = this.base + suffix;
+
+    return fetch(url, {
+      credentials: 'include',
+      mode: 'cors',
+    }).then(this.errorHandler);
+  }
+  /**
+   * get a collection info
+   * @param {string} id - the mongo doc's id
+   * @return {promise} - promise which resolves with data
+   **/
+  getCollection(id) {
+    const suffix = 'Collection/find';
+    const url = this.base + suffix;
+    const query = {
+      '_id': id,
+    };
+    return fetch(url + '?' + objToParamStr(query), {
+      credentials: 'include',
+      mode: 'cors',
+    }).then(this.errorHandler);
+  }
+  /**
+   * update a collection info
+   * @param {string} id - the collection id
+   * @param {object} json - the data
+   * @return {promise} - promise which resolves with data
+   **/
+  updateCollection(id, data) {
+    const suffix = 'Collection/update';
+    const url = this.base + suffix;
+    const query = {
+      '_id': id,
+    };
+    return fetch(url + '?' + objToParamStr(query), {
+      method: 'POST',
+      credentials: 'include',
+      mode: 'cors',
+      body: JSON.stringify(data),
+    });
+  }
+  /**
+   * delete collection
+   * @param {object} id - the collection object id
+   * @return {promise} - promise which resolves with response
+   **/
+  deleteCollection(id) {
+    const suffix = 'Collection/delete';
+    const url = this.base + suffix;
+    const query = {
+      '_id': id,
+    };
+    return fetch(url + '?' + objToParamStr(query), {
+      method: 'DELETE',
       credentials: 'include',
       mode: 'cors',
     }).then(this.errorHandler);

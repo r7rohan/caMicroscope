@@ -480,43 +480,48 @@ function isFunction(obj) {
   return typeof obj === 'function' && typeof obj.nodeType !== 'number';
 }
 
-function covertToLayViewer(item) {
-  const typeName = item.source;
-  const id = item.execution_id;
-  // support 2.0 style annotation data in refactor
-  const name = item.name || item.execution_id;
-
-  // const isShow = l&&l.includes(id)?true:false;
-  if (!typeIds[typeName]) typeIds[typeName] = randomId();
-  // for segmentation
-  if (item.source == 'computer' && item.computation == 'segmentation') {
-    return {
-      id: id,
-      name: item.execution_id,
-      typeId: typeIds[typeName],
-      typeName: item.computation,
-      creator: item.creator,
-      data: null,
-    };
-  }
-  if (item.source == 'human') {
-    return {
-      id: id,
-      name: name,
-      typeId: typeIds[typeName],
-      typeName: typeName,
-      creator: item.creator,
-      shape: item.shape,
-      isGrid: item.isGrid? true: false,
-      data: null,
-    };
-  }  
+function covertToHumanLayer(data) {
+  const item = data._id;
+  const typeName = item.analysis.source;
+  const id = item.analysis.execution_id;
+  const name = item.analysis.name || item.analysis.execution_id;
+  
+  if (!item.shape) item.shape = ["Polygon"];
   return {
     id: id,
     name: name,
-    typeId: typeIds[typeName],
+    typeId: typeName,
     typeName: typeName,
     creator: item.creator,
+    shape: item.shape[0],
+    isGrid: item.analysis.isGrid? true: false,
+    data: null,
+  };  
+}
+
+function covertToRulerLayer(data) {
+  return {
+    id: data.execution_id,
+    name: data.name,
+    typeId: data.type,
+    typeName: data.source,
+    shape: "Polygon",
+    creator: data.creator,
+    data: null,
+  };  
+}
+
+function covertToCumputerLayer(data) {
+  const typeName = data.source;
+  const id = data.execution_id;
+  
+  //if (!typeIds[typeName]) typeIds[typeName] = randomId();
+  return {
+    id: id,
+    name: id,
+    typeId: data.computation,
+    typeName: data.computation,
+    creator: data.creator,
     data: null,
   };
 }

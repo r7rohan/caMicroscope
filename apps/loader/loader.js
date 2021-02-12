@@ -10,7 +10,6 @@ function changeStatus(step, text, reset=true) {
   // Reset the status bar
   console.log('Previous: ', document.getElementById('load_status').innerHTML);
   document.getElementById('load_status').innerHTML='';
-
   // Display JSON as table:
   if (typeof text === 'object') { // If the text arg is a JSON
     var col = []; // List of column headers
@@ -51,7 +50,7 @@ function changeStatus(step, text, reset=true) {
       tr = table.insertRow(-1);
       for (var j = 0; j < col.length; j++) {
         var tabCell = tr.insertCell(-1);
-        if (text[col[j]].length>65&&step == 'CHECK') {
+        if (text[col[j]] && text[col[j]].length>65&&step == 'CHECK') {
           tabCell.innerHTML= `${text[col[j]].substr(0, 65)}<span class="collapse" id="more-${j}">
              ${text[col[j]].substr(65)}    </span>
     <span><a href="#more-${j}" data-toggle="collapse">... <i class="fa fa-caret-down"></i></span>`;
@@ -91,7 +90,7 @@ function changeStatus(step, text, reset=true) {
     responsiveContainer.appendChild(table);
     divContainer.appendChild(responsiveContainer);
     $('#statusTable').stacktable();
-    document.getElementById('load_status').innerHTML=step;
+    // document.getElementById('load_status').innerHTML=step;
   } else {
     text = JSON.stringify(text);
     text = step + ' | ' + text;
@@ -127,7 +126,7 @@ function handleDownload(id) {
           throw new Error('Slide not found');
         }
       }).then((location) => {
-        fileName= location.substring(location.lastIndexOf('/')+1, location.length);
+        fileName = location.substring(location.lastIndexOf('/')+1, location.length);
         console.log(fileName);
         return fileName;
       }).then((fileName) =>{
@@ -160,20 +159,40 @@ function handleDownload(id) {
       });
 }
 
+function convertSlide(filename, destFilename) {
+  let convUrl = '../loader/slide/' + filename + '/pyramid/' + destFilename;
+  return fetch(convUrl, {'method': 'POST'}).then((response) => response.json());
+}
 
-function handleCheck(filename, reset, id) {
+function handleCheck(filename, reset, id, noRetry) {
   fetch(checkUrl + filename, {credentials: 'same-origin'}).then(
       (response) => response.json(), // if the response is a JSON object
   ).then(
       (success) => {
+        // errors aren't always non-success, so need to check here too
+        if(success.error){
+          console.error(success.error);
+          throw success;
+        }
         success['ID'] = id;
         // Add the filename, to be able to fetch the thumbnail.
         success['preview'] = filename;
         changeStatus('CHECK', success, reset);
+        $('#finish_btn').fadeOut(300);
+        $('#filename0, #slidename0, #filter0').prop('disabled', true);
       }, // Handle the success response object
-  ).catch(
-      (error) => changeStatus('CHECK', error, reset), // Handle the error response object
-  );
+  ).catch((error)=>{
+    if (!(noRetry)) {
+      console.log('retrying with conversion');
+      let destFilename = filename.replace('.', '_') + '_conv.tif';
+      document.getElementById('filename'+0).value = destFilename;
+      convertSlide(filename, destFilename).then(x=>handleCheck(destFilename, reset, id, true))
+          .catch((err)=>changeStatus('CHECK', error, reset));
+    } else {
+      console.info('not retrying');
+      changeStatus('CHECK', error, reset); // Handle the error response object
+    }
+  });
 }
 
 function handlePost(filename, slidename, filter, reset) {
@@ -221,6 +240,7 @@ function CheckBtn() {
 }
 
 function PostBtn() {
+  document.getElementById('load_status').innerHTML='';
   var filename = document.getElementById('filename'+0).value;
   var slidename = document.getElementById('slidename'+0).value;
   var filter = document.getElementById('filter'+0).value;
